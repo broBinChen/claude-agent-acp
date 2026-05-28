@@ -54,7 +54,9 @@ function makeAgent(client: ReturnType<typeof createMockClient>) {
       configOptions: [],
     },
   };
-  (agent as any).clientCapabilities = {};
+  (agent as any).clientCapabilities = {
+    elicitation: { form: {} },
+  };
 
   return agent;
 }
@@ -211,5 +213,20 @@ describe("canUseTool: AskUserQuestion bridge", () => {
     expect(client.unstable_createElicitation).not.toHaveBeenCalled();
     expect(client.requestPermission).toHaveBeenCalledOnce();
     expect(result.behavior).toBe("allow");
+  });
+
+  // -------------------------------------------------------------------
+  // Test 6: client without elicitation.form capability → deny gracefully
+  // -------------------------------------------------------------------
+  it("client without elicitation.form capability → deny gracefully", async () => {
+    // Override the default clientCapabilities set in makeAgent — simulate
+    // a client that has not declared elicitation.form support.
+    (agent as any).clientCapabilities = {};
+
+    const result = await agent.canUseTool("sess-1")("AskUserQuestion", sampleInput, baseOpts() as any);
+
+    expect(client.unstable_createElicitation).not.toHaveBeenCalled();
+    expect(result.behavior).toBe("deny");
+    expect((result as any).message).toMatch(/elicitation\.form|plain text/i);
   });
 });

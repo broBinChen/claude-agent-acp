@@ -450,6 +450,9 @@ export class ClaudeAcpAgent implements Agent {
           claudeCode: {
             promptQueueing: true,
           },
+          acpx: {
+            askUserQuestionViaElicitation: true,
+          },
         },
         promptCapabilities: {
           image: true,
@@ -1232,6 +1235,20 @@ export class ClaudeAcpAgent implements Agent {
       }
 
       if (toolName === "AskUserQuestion") {
+                // Capability guard: client must declare elicitation.form support.
+                // If not, deny gracefully so the model falls back to natural-language
+                // questioning rather than hanging on an unsupported RPC.
+                const supportsFormElicitation =
+                    this.clientCapabilities?.elicitation?.form != null;
+                if (!supportsFormElicitation) {
+                    return {
+                        behavior: "deny",
+                        message:
+                            "Client does not advertise elicitation.form capability — " +
+                            "ask the user via plain text instead.",
+                    };
+                }
+
         const input = toolInput as { questions: AskUserQuestionInputQuestion[] };
         const payload = questionsToElicitationFormPayload(input.questions);
         const resp = await this.client.unstable_createElicitation({
