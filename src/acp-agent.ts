@@ -74,6 +74,11 @@ import {
   toolUpdateFromToolResult,
 } from "./tools.js";
 import { nodeToWebReadable, nodeToWebWritable, Pushable, unreachable } from "./utils.js";
+import {
+  questionsToElicitationFormPayload,
+  contentToAnswers,
+  type AskUserQuestionInputQuestion,
+} from "./elicitation-bridge.js";
 
 export const CLAUDE_CONFIG_DIR =
   process.env.CLAUDE_CONFIG_DIR ?? path.join(os.homedir(), ".claude");
@@ -1223,6 +1228,47 @@ export class ClaudeAcpAgent implements Agent {
         return {
           behavior: "deny",
           message: "Session not found",
+        };
+      }
+
+      if (toolName === "AskUserQuestion") {
+        const input = toolInput as { questions: AskUserQuestionInputQuestion[] };
+        const payload = questionsToElicitationFormPayload(input.questions);
+        const resp = await this.client.unstable_createElicitation({
+          sessionId,
+          mode: "form",
+          message: "Please answer the following questions to continue",
+          ...payload,
+        });
+
+        if (signal.aborted) {
+          throw new Error("Tool use aborted");
+        }
+
+        if (resp.action === "accept") {
+          return {
+            behavior: "allow",
+            updatedInput: {
+              ...input,
+              answers: contentToAnswers(
+                resp.content as Record<string, unknown> | undefined,
+                input.questions,
+              ),
+            },
+          };
+        }
+
+        if (resp.action === "cancel") {
+          return {
+            behavior: "deny",
+            message: "User cancelled the questions",
+          };
+        }
+
+        // resp.action === "decline"
+        return {
+          behavior: "deny",
+          message: "User declined to answer questions",
         };
       }
 
