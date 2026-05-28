@@ -229,4 +229,33 @@ describe("canUseTool: AskUserQuestion bridge", () => {
     expect(result.behavior).toBe("deny");
     expect((result as any).message).toMatch(/elicitation\.form|plain text/i);
   });
+
+  // -------------------------------------------------------------------
+  // Test 7: malformed toolInput (no questions field) → deny gracefully
+  // -------------------------------------------------------------------
+  it("malformed toolInput (no questions array) → deny gracefully", async () => {
+    const result = await agent.canUseTool("sess-1")(
+      "AskUserQuestion",
+      { foo: "bar" } as any,
+      baseOpts() as any,
+    );
+
+    expect(client.unstable_createElicitation).not.toHaveBeenCalled();
+    expect(result.behavior).toBe("deny");
+    expect((result as any).message).toMatch(/questions array|malformed|invalid/i);
+  });
+
+  // -------------------------------------------------------------------
+  // Test 8: malformed toolInput (questions not array) → deny gracefully
+  // -------------------------------------------------------------------
+  it("malformed toolInput (questions not array) → deny gracefully", async () => {
+    const result = await agent.canUseTool("sess-1")(
+      "AskUserQuestion",
+      { questions: "not an array" } as any,
+      baseOpts() as any,
+    );
+
+    expect(client.unstable_createElicitation).not.toHaveBeenCalled();
+    expect(result.behavior).toBe("deny");
+  });
 });

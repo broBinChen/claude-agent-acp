@@ -54,7 +54,7 @@ export interface ElicitationSchema {
  * 调用方应该这样使用：
  * ```ts
  * const payload = questionsToElicitationFormPayload(questions);
- * await client.requestElicitation({
+ * await client.unstable_createElicitation({
  *   sessionId,
  *   mode: "form",
  *   message: "...",

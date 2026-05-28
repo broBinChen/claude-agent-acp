@@ -1235,22 +1235,29 @@ export class ClaudeAcpAgent implements Agent {
       }
 
       if (toolName === "AskUserQuestion") {
-                // Capability guard: client must declare elicitation.form support.
-                // If not, deny gracefully so the model falls back to natural-language
-                // questioning rather than hanging on an unsupported RPC.
-                const supportsFormElicitation =
-                    this.clientCapabilities?.elicitation?.form != null;
-                if (!supportsFormElicitation) {
-                    return {
-                        behavior: "deny",
-                        message:
-                            "Client does not advertise elicitation.form capability — " +
-                            "ask the user via plain text instead.",
-                    };
-                }
+        // Capability guard: client must declare elicitation.form support.
+        // If not, deny gracefully so the model falls back to natural-language
+        // questioning rather than hanging on an unsupported RPC.
+        const supportsFormElicitation =
+          this.clientCapabilities?.elicitation?.form != null;
+        if (!supportsFormElicitation) {
+          return {
+            behavior: "deny",
+            message:
+              "Client does not advertise elicitation.form capability — " +
+              "ask the user via plain text instead.",
+          };
+        }
 
-        const input = toolInput as { questions: AskUserQuestionInputQuestion[] };
-        const payload = questionsToElicitationFormPayload(input.questions);
+        const input = toolInput as { questions?: unknown };
+        if (!input.questions || !Array.isArray(input.questions)) {
+          return {
+            behavior: "deny",
+            message: "AskUserQuestion called without a questions array",
+          };
+        }
+        const questions = input.questions as AskUserQuestionInputQuestion[];
+        const payload = questionsToElicitationFormPayload(questions);
         const resp = await this.client.unstable_createElicitation({
           sessionId,
           mode: "form",
@@ -1266,10 +1273,10 @@ export class ClaudeAcpAgent implements Agent {
           return {
             behavior: "allow",
             updatedInput: {
-              ...input,
+              questions,
               answers: contentToAnswers(
                 resp.content as Record<string, unknown> | undefined,
-                input.questions,
+                questions,
               ),
             },
           };
