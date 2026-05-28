@@ -1,11 +1,11 @@
 import { describe, it, expect } from "vitest";
 import {
-  questionsToElicitationSchema,
+  questionsToElicitationFormPayload,
   contentToAnswers,
   type AskUserQuestionInputQuestion,
 } from "../elicitation-bridge.js";
 
-describe("questionsToElicitationSchema", () => {
+describe("questionsToElicitationFormPayload", () => {
   const singleSelect: AskUserQuestionInputQuestion = {
     question: "Which auth method?",
     header: "Auth",
@@ -17,10 +17,10 @@ describe("questionsToElicitationSchema", () => {
   };
 
   it("single-select question becomes string property with oneOf", () => {
-    const schema = questionsToElicitationSchema([singleSelect]);
-    expect(schema.type).toBe("object");
-    expect(schema.required).toEqual(["q0"]);
-    const prop = schema.properties.q0 as Record<string, unknown>;
+    const payload = questionsToElicitationFormPayload([singleSelect]);
+    expect(payload.requestedSchema.type).toBe("object");
+    expect(payload.requestedSchema.required).toEqual(["q0"]);
+    const prop = payload.requestedSchema.properties.q0 as Record<string, unknown>;
     expect(prop.type).toBe("string");
     expect(prop.title).toBe("Which auth method?");
     expect(prop.oneOf).toEqual([
@@ -30,8 +30,8 @@ describe("questionsToElicitationSchema", () => {
   });
 
   it("preserves header / option descriptions / previews in _meta", () => {
-    const schema = questionsToElicitationSchema([singleSelect]);
-    const meta = schema._meta?.["acpx/askUserQuestion"] as Record<string, unknown>;
+    const payload = questionsToElicitationFormPayload([singleSelect]);
+    const meta = payload._meta?.["acpx/askUserQuestion"] as Record<string, unknown>;
     expect(meta).toBeDefined();
     expect(meta.headers).toEqual(["Auth"]);
     expect(meta.optionDescs).toEqual([["Use OAuth flow", "Use JWT tokens"]]);
@@ -48,8 +48,8 @@ describe("questionsToElicitationSchema", () => {
       ],
       multiSelect: true,
     };
-    const schema = questionsToElicitationSchema([q]);
-    const prop = schema.properties.q0 as Record<string, unknown>;
+    const payload = questionsToElicitationFormPayload([q]);
+    const prop = payload.requestedSchema.properties.q0 as Record<string, unknown>;
     expect(prop.type).toBe("array");
     expect(prop.title).toBe("Which countries?");
     const items = prop.items as Record<string, unknown>;
@@ -64,9 +64,9 @@ describe("questionsToElicitationSchema", () => {
       { question: "Q3", header: "H3", options: [{ label: "E", description: "" }, { label: "F", description: "" }] },
       { question: "Q4", header: "H4", options: [{ label: "G", description: "" }, { label: "H", description: "" }] },
     ];
-    const schema = questionsToElicitationSchema(qs);
-    expect(schema.required).toEqual(["q0", "q1", "q2", "q3"]);
-    expect(Object.keys(schema.properties)).toEqual(["q0", "q1", "q2", "q3"]);
+    const payload = questionsToElicitationFormPayload(qs);
+    expect(payload.requestedSchema.required).toEqual(["q0", "q1", "q2", "q3"]);
+    expect(Object.keys(payload.requestedSchema.properties)).toEqual(["q0", "q1", "q2", "q3"]);
   });
 });
 
