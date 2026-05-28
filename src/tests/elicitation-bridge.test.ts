@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   questionsToElicitationSchema,
+  contentToAnswers,
   type AskUserQuestionInputQuestion,
 } from "../elicitation-bridge.js";
 
@@ -66,5 +67,44 @@ describe("questionsToElicitationSchema", () => {
     const schema = questionsToElicitationSchema(qs);
     expect(schema.required).toEqual(["q0", "q1", "q2", "q3"]);
     expect(Object.keys(schema.properties)).toEqual(["q0", "q1", "q2", "q3"]);
+  });
+});
+
+describe("contentToAnswers", () => {
+  const singleQ: AskUserQuestionInputQuestion = {
+    question: "Lib?",
+    header: "Lib",
+    options: [{ label: "A", description: "" }, { label: "B", description: "" }],
+  };
+
+  it("single-select string content → answer string", () => {
+    const out = contentToAnswers({ q0: "A" }, [singleQ]);
+    expect(out).toEqual({ "Lib?": "A" });
+  });
+
+  it("multi-select array content → comma-joined answer", () => {
+    const multiQ: AskUserQuestionInputQuestion = {
+      question: "Countries?",
+      header: "C",
+      options: [{ label: "US", description: "" }, { label: "DE", description: "" }],
+      multiSelect: true,
+    };
+    const out = contentToAnswers({ q0: ["US", "DE"] }, [multiQ]);
+    expect(out).toEqual({ "Countries?": "US, DE" });
+  });
+
+  it("missing content key → no answer (skipped, not undefined)", () => {
+    const out = contentToAnswers({}, [singleQ]);
+    expect(out).toEqual({});
+  });
+
+  it("null content gracefully → empty answers", () => {
+    const out = contentToAnswers(null, [singleQ]);
+    expect(out).toEqual({});
+  });
+
+  it("number content stringified", () => {
+    const out = contentToAnswers({ q0: 42 }, [singleQ]);
+    expect(out).toEqual({ "Lib?": "42" });
   });
 });
