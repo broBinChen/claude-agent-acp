@@ -1529,7 +1529,12 @@ export class ClaudeAcpAgent implements Agent {
       : undefined;
 
     // Disable this for now, not a great way to expose this over ACP at the moment (in progress work so we can revisit)
-    const disallowedTools = ["AskUserQuestion"];
+    // LinkFox fork: Step 1 — unlock AskUserQuestion from disallowedTools.
+    // Step 2 (bridge to ACP elicitation/create) is implemented in
+    // src/elicitation-bridge.ts + the AskUserQuestion branch in canUseTool,
+    // added in subsequent commits. Keeping the variable + spread untouched
+    // so future rebases against upstream produce minimal diffs.
+    const disallowedTools: string[] = [];
 
     // Resolve which built-in tools to expose.
     // Explicit tools array from _meta.claudeCode.options takes precedence.
