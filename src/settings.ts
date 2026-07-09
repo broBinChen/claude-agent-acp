@@ -1,6 +1,6 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { CLAUDE_CONFIG_DIR } from "./acp-agent.js";
+import { LINKFOX_CONFIG_DIR } from "./acp-agent.js";
 
 /**
  * Permission rule format examples:
@@ -128,7 +128,7 @@ export class SettingsManager {
    * Returns the path to the user settings file
    */
   private getUserSettingsPath(): string {
-    return path.join(CLAUDE_CONFIG_DIR, "settings.json");
+    return path.join(LINKFOX_CONFIG_DIR, "settings.json");
   }
 
   /**

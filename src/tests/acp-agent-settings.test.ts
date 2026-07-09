@@ -54,17 +54,17 @@ describe("ClaudeAcpAgent settings", () => {
 
   beforeEach(async () => {
     tempDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), "acp-agent-settings-"));
-    originalClaudeConfigDir = process.env.CLAUDE_CONFIG_DIR;
-    process.env.CLAUDE_CONFIG_DIR = tempDir;
+    originalClaudeConfigDir = process.env.LINKFOX_CONFIG_DIR;
+    process.env.LINKFOX_CONFIG_DIR = tempDir;
     querySpy.mockReset();
     vi.resetModules();
   });
 
   afterEach(async () => {
     if (originalClaudeConfigDir) {
-      process.env.CLAUDE_CONFIG_DIR = originalClaudeConfigDir;
+      process.env.LINKFOX_CONFIG_DIR = originalClaudeConfigDir;
     } else {
-      delete process.env.CLAUDE_CONFIG_DIR;
+      delete process.env.LINKFOX_CONFIG_DIR;
     }
     await fs.promises.rm(tempDir, { recursive: true, force: true });
   });

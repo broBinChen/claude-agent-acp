@@ -80,8 +80,8 @@ import {
   type AskUserQuestionInputQuestion,
 } from "./elicitation-bridge.js";
 
-export const CLAUDE_CONFIG_DIR =
-  process.env.CLAUDE_CONFIG_DIR ?? path.join(os.homedir(), ".claude");
+export const LINKFOX_CONFIG_DIR =
+  process.env.LINKFOX_CONFIG_DIR ?? path.join(os.homedir(), ".claude");
 
 const MAX_TITLE_LENGTH = 256;
 
@@ -1626,7 +1626,7 @@ export class ClaudeAcpAgent implements Agent {
         ...userProvidedOptions?.env,
         ...createEnvForGateway(this.gatewayAuthMeta),
         // Opt-in to session state events like when the agent is idle
-        CLAUDE_CODE_EMIT_SESSION_STATE_EVENTS: "1",
+        LINKFOX_CODE_EMIT_SESSION_STATE_EVENTS: "1",
       },
       // Override certain fields that must be controlled by ACP
       cwd: params.cwd,
@@ -1640,8 +1640,8 @@ export class ClaudeAcpAgent implements Agent {
       // note: although not documented by the types, passing an absolute path
       // here works to find zed's managed node version.
       executable: isStaticBinary() ? undefined : (process.execPath as any),
-      ...(process.env.CLAUDE_CODE_EXECUTABLE
-        ? { pathToClaudeCodeExecutable: process.env.CLAUDE_CODE_EXECUTABLE }
+      ...(process.env.LINKFOX_CODE_EXECUTABLE
+        ? { pathToClaudeCodeExecutable: process.env.LINKFOX_CODE_EXECUTABLE }
         : isStaticBinary()
           ? { pathToClaudeCodeExecutable: await claudeCliPath() }
           : {}),
@@ -1992,11 +1992,11 @@ async function getAvailableModels(
   let currentModel = models[0];
 
   // Model priority (highest to lowest):
-  // 1. ANTHROPIC_MODEL environment variable
+  // 1. LINKFOX_MODEL environment variable
   // 2. settings.model (user configuration)
   // 3. models[0] (default first model)
-  if (process.env.ANTHROPIC_MODEL) {
-    const match = resolveModelPreference(models, process.env.ANTHROPIC_MODEL);
+  if (process.env.LINKFOX_MODEL) {
+    const match = resolveModelPreference(models, process.env.LINKFOX_MODEL);
     if (match) {
       currentModel = match;
     }
