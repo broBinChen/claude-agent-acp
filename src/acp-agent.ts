@@ -266,7 +266,7 @@ export type ToolUseCache = {
 };
 
 function isStaticBinary(): boolean {
-  return process.env.CLAUDE_AGENT_ACP_IS_SINGLE_FILE_BUN !== undefined;
+  return process.env.LINKFOX_AGENT_ACP_IS_SINGLE_FILE_BUN !== undefined;
 }
 
 export async function claudeCliPath(): Promise<string> {
@@ -374,7 +374,7 @@ export class ClaudeAcpAgent implements Agent {
       process.env.SSH_CONNECTION ||
       process.env.SSH_CLIENT ||
       process.env.SSH_TTY ||
-      process.env.CLAUDE_CODE_REMOTE
+      process.env.LINKFOX_CODE_REMOTE
     );
     const terminalAuthMethods: AuthMethod[] = [];
 
@@ -1867,11 +1867,11 @@ function createEnvForGateway(gatewayMeta?: GatewayAuthMeta) {
     return {};
   }
   return {
-    ANTHROPIC_BASE_URL: gatewayMeta.gateway.baseUrl,
-    ANTHROPIC_CUSTOM_HEADERS: Object.entries(gatewayMeta.gateway.headers)
+    LINKFOX_BASE_URL: gatewayMeta.gateway.baseUrl,
+    LINKFOX_CUSTOM_HEADERS: Object.entries(gatewayMeta.gateway.headers)
       .map(([key, value]) => `${key}: ${value}`)
       .join("\n"),
-    ANTHROPIC_AUTH_TOKEN: "", // Must be specified to bypass claude login requirement
+    LINKFOX_AUTH_TOKEN: "", // Must be specified to bypass claude login requirement
   };
 }
 
