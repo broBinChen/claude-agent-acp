@@ -4,7 +4,7 @@ import { ContentBlockParam } from "@anthropic-ai/sdk/resources";
 import { BetaContentBlock, BetaRawContentBlockDelta } from "@anthropic-ai/sdk/resources/beta.mjs";
 import { SettingsManager } from "./settings.js";
 import { Pushable } from "./utils.js";
-export declare const CLAUDE_CONFIG_DIR: string;
+export declare const LINKFOX_CONFIG_DIR: string;
 /**
  * Logger interface for customizing logging output
  */

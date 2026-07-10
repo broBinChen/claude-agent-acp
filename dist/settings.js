@@ -1,6 +1,6 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { CLAUDE_CONFIG_DIR } from "./acp-agent.js";
+import { LINKFOX_CONFIG_DIR } from "./acp-agent.js";
 /**
  * Reads and parses a JSON settings file, returning an empty object if not found or invalid.
  * Silently ignores missing files (ENOENT) but logs warnings for other errors
@@ -88,7 +88,7 @@ export class SettingsManager {
      * Returns the path to the user settings file
      */
     getUserSettingsPath() {
-        return path.join(CLAUDE_CONFIG_DIR, "settings.json");
+        return path.join(LINKFOX_CONFIG_DIR, "settings.json");
     }
     /**
      * Returns the path to the project settings file

@@ -75,9 +75,9 @@ describe("authorization", () => {
         expect(mockQuery).toHaveBeenCalledWith(expect.objectContaining({
             options: expect.objectContaining({
                 env: expect.objectContaining({
-                    ANTHROPIC_AUTH_TOKEN: "",
-                    ANTHROPIC_BASE_URL: "https://gateway.example",
-                    ANTHROPIC_CUSTOM_HEADERS: "x-api-key: test",
+                    LINKFOX_AUTH_TOKEN: "",
+                    LINKFOX_BASE_URL: "https://gateway.example",
+                    LINKFOX_CUSTOM_HEADERS: "x-api-key: test",
                     userEnv: "userEnv",
                 }),
             }),
@@ -131,9 +131,9 @@ describe("authorization", () => {
         expect(initializeResponse.authMethods).not.toContainEqual(expect.objectContaining({ id: "claude-ai-login" }));
         expect(initializeResponse.authMethods).not.toContainEqual(expect.objectContaining({ id: "console-login" }));
     });
-    it("CLAUDE_CODE_REMOTE falls back to single legacy login method", async () => {
+    it("LINKFOX_CODE_REMOTE falls back to single legacy login method", async () => {
         const [agent] = await createAgentMock();
-        vi.stubGlobal("process", { ...process, env: { ...process.env, CLAUDE_CODE_REMOTE: "1" } });
+        vi.stubGlobal("process", { ...process, env: { ...process.env, LINKFOX_CODE_REMOTE: "1" } });
         const initializeResponse = await agent.initialize({
             protocolVersion: 1,
             clientCapabilities: { auth: { terminal: true } },

@@ -8,7 +8,7 @@ import { SettingsManager } from "./settings.js";
 import { createPostToolUseHook, planEntries, registerHookCallback, toolInfoFromToolUse, toolUpdateFromEditToolResponse, toolUpdateFromToolResult, } from "./tools.js";
 import { nodeToWebReadable, nodeToWebWritable, Pushable, unreachable } from "./utils.js";
 import { questionsToElicitationFormPayload, contentToAnswers, } from "./elicitation-bridge.js";
-export const CLAUDE_CONFIG_DIR = process.env.CLAUDE_CONFIG_DIR ?? path.join(os.homedir(), ".claude");
+export const LINKFOX_CONFIG_DIR = process.env.LINKFOX_CONFIG_DIR ?? path.join(os.homedir(), ".claude");
 const MAX_TITLE_LENGTH = 256;
 function sanitizeTitle(text) {
     // Replace newlines and collapse whitespace
@@ -37,7 +37,7 @@ function computeSessionFingerprint(params) {
     return JSON.stringify({ cwd: params.cwd, mcpServers: servers });
 }
 function isStaticBinary() {
-    return process.env.CLAUDE_AGENT_ACP_IS_SINGLE_FILE_BUN !== undefined;
+    return process.env.LINKFOX_AGENT_ACP_IS_SINGLE_FILE_BUN !== undefined;
 }
 export async function claudeCliPath() {
     return isStaticBinary()
@@ -116,7 +116,7 @@ export class ClaudeAcpAgent {
             process.env.SSH_CONNECTION ||
             process.env.SSH_CLIENT ||
             process.env.SSH_TTY ||
-            process.env.CLAUDE_CODE_REMOTE);
+            process.env.LINKFOX_CODE_REMOTE);
         const terminalAuthMethods = [];
         if (isRemote) {
             const remoteLoginMethod = {
@@ -1177,7 +1177,7 @@ export class ClaudeAcpAgent {
                 ...userProvidedOptions?.env,
                 ...createEnvForGateway(this.gatewayAuthMeta),
                 // Opt-in to session state events like when the agent is idle
-                CLAUDE_CODE_EMIT_SESSION_STATE_EVENTS: "1",
+                LINKFOX_CODE_EMIT_SESSION_STATE_EVENTS: "1",
             },
             // Override certain fields that must be controlled by ACP
             cwd: params.cwd,
@@ -1191,8 +1191,8 @@ export class ClaudeAcpAgent {
             // note: although not documented by the types, passing an absolute path
             // here works to find zed's managed node version.
             executable: isStaticBinary() ? undefined : process.execPath,
-            ...(process.env.CLAUDE_CODE_EXECUTABLE
-                ? { pathToClaudeCodeExecutable: process.env.CLAUDE_CODE_EXECUTABLE }
+            ...(process.env.LINKFOX_CODE_EXECUTABLE
+                ? { pathToClaudeCodeExecutable: process.env.LINKFOX_CODE_EXECUTABLE }
                 : isStaticBinary()
                     ? { pathToClaudeCodeExecutable: await claudeCliPath() }
                     : {}),
@@ -1383,11 +1383,11 @@ function createEnvForGateway(gatewayMeta) {
         return {};
     }
     return {
-        ANTHROPIC_BASE_URL: gatewayMeta.gateway.baseUrl,
-        ANTHROPIC_CUSTOM_HEADERS: Object.entries(gatewayMeta.gateway.headers)
+        LINKFOX_BASE_URL: gatewayMeta.gateway.baseUrl,
+        LINKFOX_CUSTOM_HEADERS: Object.entries(gatewayMeta.gateway.headers)
             .map(([key, value]) => `${key}: ${value}`)
             .join("\n"),
-        ANTHROPIC_AUTH_TOKEN: "", // Must be specified to bypass claude login requirement
+        LINKFOX_AUTH_TOKEN: "", // Must be specified to bypass claude login requirement
     };
 }
 function buildConfigOptions(modes, models) {
@@ -1488,11 +1488,11 @@ async function getAvailableModels(query, models, settingsManager) {
     const settings = settingsManager.getSettings();
     let currentModel = models[0];
     // Model priority (highest to lowest):
-    // 1. ANTHROPIC_MODEL environment variable
+    // 1. LINKFOX_MODEL environment variable
     // 2. settings.model (user configuration)
     // 3. models[0] (default first model)
-    if (process.env.ANTHROPIC_MODEL) {
-        const match = resolveModelPreference(models, process.env.ANTHROPIC_MODEL);
+    if (process.env.LINKFOX_MODEL) {
+        const match = resolveModelPreference(models, process.env.LINKFOX_MODEL);
         if (match) {
             currentModel = match;
         }
